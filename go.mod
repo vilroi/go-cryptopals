@@ -1,4 +1,4 @@
-module github.com/vilroi/go-cryptopals
+module github.com/vilroi/gocryptopals
 
 go 1.22.6
 
