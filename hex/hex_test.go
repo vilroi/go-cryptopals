@@ -23,4 +23,5 @@ func TestDecodeStr(t *testing.T) {
 	} else {
 		t.Log("OK")
 	}
+
 }
