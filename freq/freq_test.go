@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-/*
 func TestCountChars(t *testing.T) {
 	file := "alice.txt"
 	f, err := os.Open(file)
@@ -19,11 +18,14 @@ func TestCountChars(t *testing.T) {
 
 	charCount := countChars(data)
 	//pairs := mapToPairs(charCount)
-	for c, count := range charCount {
-		fmt.Printf("%c: %d\n", c, count)
-	}
+	/*
+		for c, count := range charCount {
+			fmt.Printf("%s: %d\n", c, count)
+		}
+	*/
+
+	fmt.Printf("noise ratio: %d/%d =  %f\n", charCount["noise"], len(data), float32(charCount["noise"]/len(data)))
 }
-*/
 
 func TestCalcScore(t *testing.T) {
 	file := "alice.txt"
@@ -31,12 +33,11 @@ func TestCalcScore(t *testing.T) {
 
 	charCount := getCharCount(data)
 	for _, entry := range charCount {
-		fmt.Printf("%c: %d\n", entry.Char, entry.Count)
+		fmt.Printf("%s: %d\n", entry.Char, entry.Count)
 	}
 	fmt.Println(CalcScore(data))
 }
 
-/*
 func TestToLower(t *testing.T) {
 	for i := 0; i < 255; i++ {
 		c := tolower(byte(i))
@@ -44,20 +45,7 @@ func TestToLower(t *testing.T) {
 	}
 }
 
-func TestCharFreq(t *testing.T) {
-	f, err := os.Open("./t")
-	check(err)
-	defer f.Close()
-
-	data, err := io.ReadAll(f)
-	check(err)
-
-	charFreq := calcCharFreq(data)
-	for c, freq := range charFreq {
-		fmt.Printf("%c: %f\n", c, freq)
-	}
-}
-
+/*
 func TestBreakXor(t *testing.T) {
 	f, err := os.Open("./t")
 	check(err)
@@ -66,7 +54,6 @@ func TestBreakXor(t *testing.T) {
 	data, err := io.ReadAll(f)
 	check(err)
 
-	/*
 		var key byte = 'y'
 		data = xor.XorByte(data, key)
 
