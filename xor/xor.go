@@ -1,8 +1,6 @@
 package xor
 
 import (
-	"fmt"
-
 	"github.com/vilroi/gocryptopals/freq"
 )
 
@@ -49,8 +47,6 @@ func BruteForceSingleByteXor(data []byte) ([]byte, byte) {
 		if err != nil {
 			continue
 		}
-
-		fmt.Printf("key: %c, score: %d\n", i, score)
 
 		if score > highScore {
 			key = i
