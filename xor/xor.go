@@ -1,5 +1,11 @@
 package xor
 
+import (
+	"fmt"
+
+	"github.com/vilroi/gocryptopals/freq"
+)
+
 func XorStrings(text, key string) []byte {
 	data := []byte(text)
 	k := []byte(key)
@@ -30,4 +36,29 @@ func Xor(data, key []byte) []byte {
 	}
 
 	return bytes
+}
+
+func BruteForceSingleByteXor(data []byte) ([]byte, byte) {
+	var i byte
+	var key byte
+	var highScore int
+
+	for ; i < 255; i++ {
+		tmp := XorByte(data, i)
+		score, err := freq.CalcScore(tmp)
+		if err != nil {
+			continue
+		}
+
+		fmt.Printf("key: %c, score: %d\n", i, score)
+
+		if score > highScore {
+			key = i
+			highScore = score
+		}
+	}
+
+	result := XorByte(data, key)
+
+	return result, key
 }

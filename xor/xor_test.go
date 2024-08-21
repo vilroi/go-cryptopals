@@ -20,3 +20,18 @@ func TestXorStrings(t *testing.T) {
 	assert.AssertEq(expected, res)
 	fmt.Println("OK")
 }
+
+func TestBruteForceSingleByteXor(t *testing.T) {
+	text := "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"
+	key := byte('X')
+	xored := XorByte([]byte(text), key)
+
+	decrypted, k := BruteForceSingleByteXor(xored)
+
+	fmt.Printf("key: '%c'\n", k)
+	fmt.Println(string(decrypted))
+	assert.AssertEq(key, k)
+	assert.AssertEq(text, string(decrypted))
+
+	fmt.Println("Ok")
+}
