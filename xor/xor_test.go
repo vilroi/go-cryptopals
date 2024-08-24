@@ -28,7 +28,7 @@ func TestBruteForceSingleByteXor(t *testing.T) {
 
 	decrypted, k := BruteForceSingleByteXor(xored)
 
-	//fmt.Printf("key: '%c'\n", k)
+	fmt.Printf("key: '%c'\n", k)
 	fmt.Println(string(decrypted))
 	assert.AssertEq(key, k)
 	assert.AssertEq(text, string(decrypted))

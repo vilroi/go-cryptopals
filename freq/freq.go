@@ -2,71 +2,71 @@ package freq
 
 import (
 	"errors"
+	"io"
+	"log"
+	"os"
 	"slices"
-	"strings"
 	"unicode"
 )
 
+const sample_file = "../../data/sample.txt"
+
+type AnalysisResult struct {
+	CharCount  []CharCount
+	NoiseRatio float32
+}
+
 type CharCount struct {
-	Char  string
+	Char  byte
 	Count int
 }
 
-const topChars string = "etaoinsrhld"
-const lastChars string = "ybvkxjqz"
+func CalcScore(data []byte) (float32, error) {
+	var score float32
 
-func CalcScore(data []byte) (int, error) {
-	var score int
+	result := AnalyzeText(data)
 
-	charCount := getCharCount(data)
-	minLen := len(topChars) + len(lastChars) + 2
-	if len(charCount) < minLen {
-		return -1, errors.New("Not enough valid characters in data")
-	}
-
-	if calcNoiseRatio(charCount, len(data)) > 10.0 {
+	if result.NoiseRatio > 5.0 {
 		return -1, errors.New("Text has too much noise")
 	}
 
-	compareLen := len(topChars) + 1
-	for _, count := range charCount[:compareLen] {
-		//if strings.IndexByte(topChars, count.Char) > -1 {
-		if strings.Contains(topChars, count.Char) {
-			score++
-		}
-	}
-
-	compareLen = len(lastChars)
-	for _, count := range charCount[len(charCount)-compareLen:] {
-		//if strings.IndexByte(lastChars, count.Char) > -1 {
-		if strings.Contains(lastChars, count.Char) {
-			score++
-		}
+	freqTable := getFreqTable()
+	for _, count := range result.CharCount {
+		score += freqTable[count.Char] * float32(count.Count)
 	}
 
 	return score, nil
 }
 
+func AnalyzeText(data []byte) AnalysisResult {
+	var result AnalysisResult
+
+	result.CharCount = getCharCount(data)
+	result.NoiseRatio = calcNoiseRatio(result.CharCount, len(data))
+
+	return result
+}
+
 func calcNoiseRatio(charCount []CharCount, length int) float32 {
 	var noiseCount int
 	for _, entry := range charCount {
-		if entry.Char == "noise" {
-			noiseCount = entry.Count
-			break
+		if isalnum(entry.Char) || unicode.IsSpace(rune(entry.Char)) {
+			continue
 		}
+		noiseCount += 1
 	}
 
 	return (float32(noiseCount) / float32(length)) * 100.0
 }
 
 func getCharCount(data []byte) []CharCount {
-	charCount := countChars(data)
+	charCount := CountChars(data)
 	sorted := sortCharCount(charCount)
 
 	return sorted
 }
 
-func sortCharCount(charCount map[string]int) []CharCount {
+func sortCharCount(charCount map[byte]int) []CharCount {
 	var countVec []CharCount
 
 	for key, val := range charCount {
@@ -86,31 +86,35 @@ func sortCharCount(charCount map[string]int) []CharCount {
 	return countVec
 }
 
-func countChars(data []byte) map[string]int {
-	charCount := make(map[string]int)
-	for _, c := range data {
-		if !unicode.IsPrint(rune(c)) {
-			if count, ok := charCount["noise"]; ok {
-				charCount["noise"] = count + 1
-			} else {
-				charCount["noise"] = 1
-			}
-			continue
-		}
-		if !unicode.IsLetter(rune(c)) {
-			continue
-		}
+func CountChars(data []byte) map[byte]int {
+	charCount := make(map[byte]int)
 
-		//key := tolower(c)
-		key := strings.ToLower(string(c))
-		if count, ok := charCount[key]; ok {
-			charCount[key] = count + 1
+	for _, c := range data {
+		c = tolower(c)
+		if count, ok := charCount[c]; ok {
+			charCount[c] = count + 1
 		} else {
-			charCount[key] = 1
+			charCount[c] = 1
 		}
 	}
 
 	return charCount
+}
+
+func isalnum(c byte) bool {
+	if '0' <= c && c <= '9' {
+		return true
+	}
+
+	if 'A' <= c && c <= 'Z' {
+		return true
+	}
+
+	if 'a' <= c && c <= 'z' {
+		return true
+	}
+
+	return false
 }
 
 func tolower(c byte) byte {
@@ -119,4 +123,33 @@ func tolower(c byte) byte {
 	}
 
 	return c
+}
+
+func getFreqTable() map[byte]float32 {
+	freq := make(map[byte]float32)
+	data := readAll(sample_file)
+	charCount := CountChars(data)
+
+	for char, count := range charCount {
+		freq[char] = float32(count) / float32(len(data))
+	}
+
+	return freq
+}
+
+func readAll(file string) []byte {
+	f, err := os.Open(file)
+	check(err)
+	defer f.Close()
+
+	data, err := io.ReadAll(f)
+	check(err)
+
+	return data
+}
+
+func check(e error) {
+	if e != nil {
+		log.Fatal(e)
+	}
 }

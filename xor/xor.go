@@ -39,9 +39,9 @@ func Xor(data, key []byte) []byte {
 func BruteForceSingleByteXor(data []byte) ([]byte, byte) {
 	var i byte
 	var key byte
-	var highScore int
+	var highScore float32
 
-	for ; i < 255; i++ {
+	for i = 1; i < 255; i++ {
 		tmp := XorByte(data, i)
 		score, err := freq.CalcScore(tmp)
 		if err != nil {

@@ -7,6 +7,7 @@ import (
 	"testing"
 )
 
+/*
 func TestCountChars(t *testing.T) {
 	file := "alice.txt"
 	f, err := os.Open(file)
@@ -18,14 +19,13 @@ func TestCountChars(t *testing.T) {
 
 	charCount := countChars(data)
 	//pairs := mapToPairs(charCount)
-	/*
 		for c, count := range charCount {
 			fmt.Printf("%s: %d\n", c, count)
 		}
-	*/
 
 	fmt.Printf("noise ratio: %d/%d =  %f\n", charCount["noise"], len(data), float32(charCount["noise"]/len(data)))
 }
+*/
 
 func TestCalcScore(t *testing.T) {
 	file := "alice.txt"
