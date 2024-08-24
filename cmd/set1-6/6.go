@@ -88,8 +88,8 @@ func getPossibleKeySize(data []byte) []int {
 
 	/* return top 5 */
 	var potential_keysz []int
-	for i := 0; i < 5; i++ {
-		potential_keysz = append(potential_keysz, keysize_vec[i].KeySize)
+	for _, pair := range keysize_vec[:5] {
+		potential_keysz = append(potential_keysz, pair.KeySize)
 	}
 
 	return potential_keysz
