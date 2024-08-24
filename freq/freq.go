@@ -5,85 +5,44 @@ import (
 	"io"
 	"log"
 	"os"
-	"slices"
 	"unicode"
 )
 
 const sample_file = "../../data/sample.txt"
 
 type AnalysisResult struct {
-	CharCount  []CharCount
+	CharCount  map[byte]int
 	NoiseRatio float32
-}
-
-type CharCount struct {
-	Char  byte
-	Count int
 }
 
 func CalcScore(data []byte) (float32, error) {
 	var score float32
 
-	result := AnalyzeText(data)
+	charCount := CountChars(data)
+	noiseRatio := calcNoiseRatio(charCount, len(data))
 
-	if result.NoiseRatio > 5.0 {
+	if noiseRatio > 5.0 {
 		return -1, errors.New("Text has too much noise")
 	}
 
 	freqTable := getFreqTable()
-	for _, count := range result.CharCount {
-		score += freqTable[count.Char] * float32(count.Count)
+	for char, count := range charCount {
+		score += freqTable[char] * float32(count)
 	}
 
 	return score, nil
 }
 
-func AnalyzeText(data []byte) AnalysisResult {
-	var result AnalysisResult
-
-	result.CharCount = getCharCount(data)
-	result.NoiseRatio = calcNoiseRatio(result.CharCount, len(data))
-
-	return result
-}
-
-func calcNoiseRatio(charCount []CharCount, length int) float32 {
+func calcNoiseRatio(charCount map[byte]int, length int) float32 {
 	var noiseCount int
-	for _, entry := range charCount {
-		if isalnum(entry.Char) || unicode.IsSpace(rune(entry.Char)) {
+	for char, _ := range charCount {
+		if isalnum(char) || unicode.IsSpace(rune(char)) {
 			continue
 		}
 		noiseCount += 1
 	}
 
 	return (float32(noiseCount) / float32(length)) * 100.0
-}
-
-func getCharCount(data []byte) []CharCount {
-	charCount := CountChars(data)
-	sorted := sortCharCount(charCount)
-
-	return sorted
-}
-
-func sortCharCount(charCount map[byte]int) []CharCount {
-	var countVec []CharCount
-
-	for key, val := range charCount {
-		countVec = append(countVec, CharCount{key, val})
-	}
-
-	slices.SortFunc(countVec, func(a, b CharCount) int {
-		if a.Count > b.Count {
-			return -1
-		} else if a.Count < b.Count {
-			return 1
-		} else {
-			return 0
-		}
-	})
-
-	return countVec
 }
 
 func CountChars(data []byte) map[byte]int {
